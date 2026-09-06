@@ -1,0 +1,27 @@
+/* TipTap 기본 입력 영역 초기화 */
+.ProseMirror {
+  outline: none;
+  min-height: 500px;
+  font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "맑은 고딕", helvetica, sans-serif;
+  font-size: 15px;
+}
+
+/* 조문 제목 서식 */
+.ProseMirror h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 24px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
+}
+
+/* 판례/법령 인용 블록 서식 */
+.ProseMirror blockquote {
+  border-left: 4px solid #0052cc;
+  background-color: #f4f6f9;
+  padding: 10px 16px;
+  margin: 12px 0;
+  color: #333;
+  font-size: 14px;
+}
