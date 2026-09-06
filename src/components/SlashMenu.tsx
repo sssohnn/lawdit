@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AlertTriangle } from 'lucide-react';
 
 export interface SlashMenuItem {
@@ -30,21 +30,35 @@ export const SlashMenu: React.FC<SlashMenuProps> = ({
   selectedIndex,
   onSelect,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // 키보드 방향키 이동 시 선택 항목으로 자동 스크롤 추적
+  useEffect(() => {
+    if (isOpen && itemRefs.current[selectedIndex]) {
+      itemRefs.current[selectedIndex]?.scrollIntoView({
+        block: 'nearest',
+        behavior: 'smooth',
+      });
+    }
+  }, [selectedIndex, isOpen]);
+
   if (!isOpen) return null;
 
   return (
     <div
+      ref={containerRef}
       style={{
-        position: 'absolute',
+        position: 'fixed',
         top: `${position.top}px`,
         left: `${position.left}px`,
-        zIndex: 100,
+        zIndex: 300,
         backgroundColor: 'rgba(255, 255, 255, 0.98)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         border: '1px solid #cbd5e1',
         borderRadius: '8px',
-        boxShadow: '0 14px 30px -4px rgba(0, 0, 0, 0.15), 0 4px 10px -2px rgba(0, 0, 0, 0.05)',
+        boxShadow: '0 16px 36px -4px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.08)',
         width: '380px',
         maxHeight: '320px',
         overflowY: 'auto',
@@ -56,7 +70,7 @@ export const SlashMenu: React.FC<SlashMenuProps> = ({
           display: 'flex',
           alignItems: 'flex-start',
           gap: '6px',
-          padding: '7px 9px',
+          padding: '6px 8px',
           marginBottom: '4px',
           backgroundColor: '#fffbeb',
           border: '1px solid #fef3c7',
@@ -66,9 +80,9 @@ export const SlashMenu: React.FC<SlashMenuProps> = ({
           color: '#b45309',
         }}
       >
-        <AlertTriangle size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+        <AlertTriangle size={13} style={{ flexShrink: 0, marginTop: '2px' }} />
         <div>
-          <strong>검증 안내</strong>: 제공되는 요건사실은 초안 데이터이며, 실제 소송 및 시험 적용 시 법률가의 검증이 필요합니다.
+          <strong>요건사실 자동완성</strong>: 초안 데이터이므로 실제 소송 및 시험 적용 시 법률가의 확인이 필요합니다.
         </div>
       </div>
 
@@ -81,11 +95,11 @@ export const SlashMenu: React.FC<SlashMenuProps> = ({
           borderBottom: '1px solid #f1f5f9',
         }}
       >
-        법률 데이터 검색결과 ({items.length}건)
+        법률 데이터 목록 ({items.length}건)
       </div>
 
       {items.length === 0 ? (
-        <div style={{ padding: '14px', fontSize: '13px', color: '#94a3b8', textAlign: 'center' }}>
+        <div style={{ padding: '14px', fontSize: '12px', color: '#94a3b8', textAlign: 'center' }}>
           일치하는 법률 서식이 없습니다.
         </div>
       ) : (
@@ -94,7 +108,14 @@ export const SlashMenu: React.FC<SlashMenuProps> = ({
           return (
             <div
               key={item.id}
-              onClick={() => onSelect(item)}
+              ref={(el) => {
+                itemRefs.current[index] = el;
+              }}
+              onMouseDown={(e) => {
+                // 커서 포커스 탈취 방지
+                e.preventDefault();
+                onSelect(item);
+              }}
               style={{
                 padding: '8px 10px',
                 cursor: 'pointer',
@@ -105,7 +126,7 @@ export const SlashMenu: React.FC<SlashMenuProps> = ({
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: '600', color: isSelected ? '#1d4ed8' : '#0f172a' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: isSelected ? '#1d4ed8' : '#0f172a' }}>
                     {item.title}
                   </span>
                   {item.reference && (
@@ -114,34 +135,18 @@ export const SlashMenu: React.FC<SlashMenuProps> = ({
                     </span>
                   )}
                 </div>
-                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                  {!item.isVerified && (
-                    <span
-                      style={{
-                        fontSize: '9px',
-                        backgroundColor: '#ffedd5',
-                        color: '#c2410c',
-                        padding: '1px 5px',
-                        borderRadius: '3px',
-                        fontWeight: '700',
-                      }}
-                    >
-                      검토필요
-                    </span>
-                  )}
-                  <span
-                    style={{
-                      fontSize: '10px',
-                      backgroundColor: '#f1f5f9',
-                      color: '#475569',
-                      padding: '1px 5px',
-                      borderRadius: '3px',
-                      fontWeight: '600',
-                    }}
-                  >
-                    {item.category}
-                  </span>
-                </div>
+                <span
+                  style={{
+                    fontSize: '10px',
+                    backgroundColor: '#f1f5f9',
+                    color: '#475569',
+                    padding: '1px 5px',
+                    borderRadius: '3px',
+                    fontWeight: '600',
+                  }}
+                >
+                  {item.category}
+                </span>
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
                 {item.description}

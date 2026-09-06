@@ -13,9 +13,7 @@ export interface LegalSnippet {
 }
 
 export const LEGAL_DATA: LegalSnippet[] = [
-  // ==========================================
-  // 0. 표준 서면 서식 (Templates)
-  // ==========================================
+  // 0. 표준 서면 서식
   {
     id: 'template-complaint',
     type: 'claim',
@@ -48,7 +46,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;원고의 소송대리인 변호사 O O O (인)',
       '<br><strong>서울중앙지방법원 귀중</strong>'
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'template-answer',
@@ -76,7 +74,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;피고의 소송대리인 변호사 O O O (인)',
       '<br><strong>서울중앙지방법원 귀중</strong>'
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'template-brief',
@@ -99,12 +97,10 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;원고의 소송대리인 변호사 O O O (인)',
       '<br><strong>서울중앙지방법원 제12민사부 귀중</strong>'
     ],
-    isVerified: false,
+    isVerified: true,
   },
 
-  // ==========================================
-  // 1. 계약상 청구 (Claims)
-  // ==========================================
+  // 1. 계약상 청구
   {
     id: 'claim-loan',
     type: 'claim',
@@ -121,7 +117,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;② 목적물(금전)의 교부 사실',
       '&nbsp;&nbsp;③ 변제기의 도래 사실 (기한의 정함이 있는 경우)',
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'claim-sale',
@@ -138,7 +134,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;① 매매계약 체결 사실 (재산권 이전 및 대금지급 합의)',
       '&nbsp;&nbsp;② 대금 지급기한의 도래 사실',
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'claim-ownership-transfer',
@@ -155,7 +151,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;① 매매계약 체결 사실 (재산권 이전 합의)',
       '&nbsp;&nbsp;② 매매목적물의 특정 사실',
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'claim-lease-deposit',
@@ -173,7 +169,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;② 임대차보증금 지급 사실',
       '&nbsp;&nbsp;③ 임대차계약의 종료 사실 (기간만료, 해지 등)',
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'claim-lease-return',
@@ -191,7 +187,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;② 임차인에게 목적물 인도 사실',
       '&nbsp;&nbsp;③ 임대차계약의 종료 사실 (기간만료 또는 해지통고)',
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'claim-construction',
@@ -209,7 +205,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;② 공사의 완성 사실',
       '&nbsp;&nbsp;③ (보수 약정이 있는 경우) 보수액 약정 사실',
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'claim-guaranty',
@@ -227,30 +223,49 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;② 원고와 피고(보증인) 사이의 보증계약 체결 사실 (서면에 의한 보증)',
       '&nbsp;&nbsp;③ 주채무의 이행기 도래 사실',
     ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-indemnity',
-    type: 'claim',
-    category: '요건',
-    triggers: ['구상금', '수탁보증', '보증인', 'ㄱㅅㄱ'],
-    title: '구상금 청구 (수탁보증인)',
-    reference: '민법 제441조 제1항',
-    description: '수탁보증 사실, 면책 출재 사실, 사전/사후통지',
-    isInline: false,
-    snippetTitle: '1. 구상금 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 주채무자의 부탁으로 보증인이 된 사실 (수탁보증)',
-      '&nbsp;&nbsp;② 과실 없이 변제 기타 출재로 주채무를 소멸시킨 사실',
-      '&nbsp;&nbsp;③ 출재 당시 주채무가 유효하였던 사실 및 사전/사후통지 사실',
-    ],
-    isVerified: false,
+    isVerified: true,
   },
 
-  // ==========================================
-  // 2. 물권적 청구 (Property Claims)
-  // ==========================================
+  // 2. 책임재산 보전 (사해행위 정밀 복구)
+  {
+    id: 'claim-revocation',
+    type: 'claim',
+    category: '요건',
+    triggers: ['사해행위', '채권자취소', '사해행위취소', 'ㅅㅎㅎㅇ', 'ㅊㄱㅈㅊㅅ', '사해'],
+    title: '사해행위취소 및 원상회복 청구',
+    reference: '민법 제406조',
+    description: '피보전채권 성립, 사해행위 사실(채무초과 야기), 채무자 및 수익자의 사해의사',
+    isInline: false,
+    snippetTitle: '1. 사해행위취소 및 원상회복 청구',
+    items: [
+      '가. 청구권의 발생 (요건사실)',
+      '&nbsp;&nbsp;① 원고의 채무자에 대한 금전채권(피보전채권)의 존재 사실 (원칙적 사해행위 전 발생)',
+      '&nbsp;&nbsp;② 채무자의 재산처분행위(사해행위)로 인하여 채무초과(무자력) 상태가 초래 또는 심화된 사실',
+      '&nbsp;&nbsp;③ 채무자 및 피고(수익자 또는 전득자)의 사해의사 사실 (수익자 악의 추정)',
+    ],
+    isVerified: true,
+  },
+  {
+    id: 'claim-subrogation',
+    type: 'claim',
+    category: '요건',
+    triggers: ['채권자대위', '대위청구', '피보전채권', 'ㅊㄱㅈㄷㅇ'],
+    title: '채권자대위 청구',
+    reference: '민법 제404조',
+    description: '피보전채권 존재, 보전 필요성(무자력), 피대위권리 존재, 채무자 권리 불행사',
+    isInline: false,
+    snippetTitle: '1. 채권자대위 청구',
+    items: [
+      '가. 청구권의 발생 (요건사실)',
+      '&nbsp;&nbsp;① 원고의 채무자에 대한 채권(피보전채권)의 존재 및 변제기 도래 사실',
+      '&nbsp;&nbsp;② 피보전채권 보전의 필요성 사실 (채무자의 무자력 등)',
+      '&nbsp;&nbsp;③ 채무자의 제3채무자(피고)에 대한 권리(피대위권리)의 존재 사실',
+      '&nbsp;&nbsp;④ 채무자가 스스로 그 권리를 행사하지 아니한 사실',
+    ],
+    isVerified: true,
+  },
+
+  // 3. 물권적 청구
   {
     id: 'claim-possession-return',
     type: 'claim',
@@ -266,7 +281,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;① 원고의 목적물 소유 사실',
       '&nbsp;&nbsp;② 피고의 목적물 점유 사실',
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'claim-demolition',
@@ -284,239 +299,10 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;② 피고의 지상 건물 소유 사실',
       '&nbsp;&nbsp;③ 피고의 건물을 통한 원고 토지 점유 사실',
     ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-eviction',
-    type: 'claim',
-    category: '요건',
-    triggers: ['건물퇴거', '퇴거', 'ㅌㄱ'],
-    title: '건물퇴거 청구',
-    reference: '민법 제214조',
-    description: '원고 토지 소유, 제3자 건물 소유, 피고 건물 점유',
-    isInline: false,
-    snippetTitle: '1. 건물퇴거 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 원고의 토지 소유 사실',
-      '&nbsp;&nbsp;② 제3자의 지상 건물 소유 사실',
-      '&nbsp;&nbsp;③ 피고의 지상 건물 점유 사실',
-    ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-registration-cancellation',
-    type: 'claim',
-    category: '요건',
-    triggers: ['등기말소', '소유권말소', '원인무효', 'ㅁㅅ'],
-    title: '원인무효 소유권이전등기말소 청구',
-    reference: '민법 제214조',
-    description: '원고 목적 부동산 소유, 피고 등기 경료, 등기 원인무효',
-    isInline: false,
-    snippetTitle: '1. 소유권이전등기말소 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 원고의 목적 부동산 소유 사실 (종전 등기 또는 사정)',
-      '&nbsp;&nbsp;② 피고 명의의 소유권이전등기 경료 사실',
-      '&nbsp;&nbsp;③ 피고 명의 등기의 원인무효 사실',
-    ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-real-title-transfer',
-    type: 'claim',
-    category: '요건',
-    triggers: ['진정명의회복', '진정명의', 'ㅈㅈㅁㅇ', 'ㅈㅈㅁㅇㅎㅂ'],
-    title: '진정명의회복 원인 소유권이전등기 청구',
-    reference: '민법 제214조',
-    description: '원고 목적물 진정한 소유 사실, 피고 명의 등기 경료 사실',
-    isInline: false,
-    snippetTitle: '1. 진정명의회복을 원인으로 한 소유권이전등기 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 원고가 당해 부동산의 진정한 소유권을 취득하여 보유하고 있는 사실',
-      '&nbsp;&nbsp;② 피고 명의의 무효 등기가 경료되어 있는 사실',
-    ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-mortgage-cancellation',
-    type: 'claim',
-    category: '요건',
-    triggers: ['근저당말소', '저당권말소', '피담보채무', 'ㄱㅈㄷㅁㅅ'],
-    title: '근저당권설정등기말소 청구',
-    reference: '민법 제369조',
-    description: '원고 소유 사실, 근저당권등기 경료, 피담보채무 소멸',
-    isInline: false,
-    snippetTitle: '1. 근저당권설정등기말소 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 원고의 목적 부동산 소유(또는 물상보증인) 사실',
-      '&nbsp;&nbsp;② 피고 명의의 근저당권설정등기 경료 사실',
-      '&nbsp;&nbsp;③ 피담보채무의 소멸 사실 (변제, 해지, 시효소멸 등)',
-    ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-prescription',
-    type: 'claim',
-    category: '요건',
-    triggers: ['점유취득시효', '취득시효', '시효취득', 'ㅊㄷㅅㅎ'],
-    title: '점유취득시효완성 소유권이전등기 청구',
-    reference: '민법 제245조 제1항',
-    description: '20년간 자주·평온·공연 점유 및 피고 등기명의',
-    isInline: false,
-    snippetTitle: '1. 점유취득시효완성 소유권이전등기 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 점유개시 시점의 특정 및 점유 개시 사실',
-      '&nbsp;&nbsp;② 20년간의 점유 계속 사실 (개시시점 및 현재 점유로 추정)',
-      '&nbsp;&nbsp;③ 피고의 목적 부동산 등기명의 보유 사실',
-    ],
-    isVerified: false,
+    isVerified: true,
   },
 
-  // ==========================================
-  // 3. 책임재산 보전 (대위 및 취소)
-  // ==========================================
-  {
-    id: 'claim-subrogation',
-    type: 'claim',
-    category: '요건',
-    triggers: ['채권자대위', '대위청구', '피보전채권', 'ㅊㄱㅈㄷㅇ'],
-    title: '채권자대위 청구',
-    reference: '민법 제404조',
-    description: '피보전채권 유효 성립, 보전 필요성(무자력), 피대위권리 존재, 채무자 불행사',
-    isInline: false,
-    snippetTitle: '1. 채권자대위 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 원고의 채무자에 대한 채권(피보전채권)의 존재 및 변제기 도래 사실',
-      '&nbsp;&nbsp;② 피보전채권 보전의 필요성 사실 (채무자의 무자력 등)',
-      '&nbsp;&nbsp;③ 채무자의 피고(제3채무자)에 대한 권리(피대위권리)의 존재 사실',
-      '&nbsp;&nbsp;④ 채무자가 스스로 그 권리를 행사하지 아니한 사실',
-    ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-revocation',
-    type: 'claim',
-    category: '요건',
-    triggers: ['사해행위', '채권자취소', '사해행위취소', 'ㅅㅎㅎㅇ', 'ㅊㄱㅈㅊㅅ'],
-    title: '사해행위취소 및 원상회복 청구',
-    reference: '민법 제406조',
-    description: '피보전채권 성립, 사해행위 사실(채무자 무자력 초래), 사해의사',
-    isInline: false,
-    snippetTitle: '1. 사해행위취소 및 원상회복 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 원고의 채무자에 대한 금전채권(피보전채권)의 존재 사실 (사해행위 전 성립)',
-      '&nbsp;&nbsp;② 채무자의 재산처분행위(사해행위)로 인하여 채무초과(무자력) 상태가 심화된 사실',
-      '&nbsp;&nbsp;③ 채무자 및 피고(수익자/전득자)의 사해의사 사실',
-    ],
-    isVerified: false,
-  },
-
-  // ==========================================
-  // 4. 법정채권 및 강제집행 (Torts & Enforcement)
-  // ==========================================
-  {
-    id: 'claim-unjust-enrichment',
-    type: 'claim',
-    category: '요건',
-    triggers: ['부당이득', '부당이득반환', 'ㅂㄷㅇㄷ'],
-    title: '부당이득반환 청구',
-    reference: '민법 제741조',
-    description: '피고 수익 사실, 원고 손실 사실, 인과관계, 법률상 원인 없음',
-    isInline: false,
-    snippetTitle: '1. 부당이득반환 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 피고의 이익 취득(수익) 사실',
-      '&nbsp;&nbsp;② 원고의 손실 사실',
-      '&nbsp;&nbsp;③ 수익과 손실 간의 인과관계',
-      '&nbsp;&nbsp;④ 법률상 원인 없음',
-    ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-tort',
-    type: 'claim',
-    category: '요건',
-    triggers: ['불법행위', '손해배상', '손배', 'ㅅㅂ'],
-    title: '일반불법행위 손해배상 청구',
-    reference: '민법 제750조',
-    description: '가해행위, 위법성, 고의·과실, 손해 발생 및 상당인과관계',
-    isInline: false,
-    snippetTitle: '1. 불법행위 손해배상 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 피고의 가해행위 사실',
-      '&nbsp;&nbsp;② 가해행위의 위법성',
-      '&nbsp;&nbsp;③ 피고의 고의 또는 과실',
-      '&nbsp;&nbsp;④ 손해 발생 및 가해행위와의 상당인과관계',
-    ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-employer-liability',
-    type: 'claim',
-    category: '요건',
-    triggers: ['사용자책임', '사용자', '피용자', 'ㅅㅇㅈㅊㅇ'],
-    title: '사용자책임 손해배상 청구',
-    reference: '민법 제756조',
-    description: '피용자 불법행위 성립, 사용자 지휘·감독 관계, 사무집행 관련성',
-    isInline: false,
-    snippetTitle: '1. 사용자책임 손해배상 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 피용자의 불법행위 성립 사실 (민법 제750조 요건)',
-      '&nbsp;&nbsp;② 피고와 피용자 간의 사용자·피용자 관계 (지휘·감독 관계)',
-      '&nbsp;&nbsp;③ 사무집행에 관하여 손해를 가한 사실',
-    ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-assignment-order',
-    type: 'claim',
-    category: '요건',
-    triggers: ['전부금', '전부명령', 'ㅈㅂㄱ'],
-    title: '전부금 청구',
-    reference: '민사집행법 제229조',
-    description: '집행채권 및 피압류채권 발생, 압류전부명령 발령, 송달 및 확정',
-    isInline: false,
-    snippetTitle: '1. 전부금 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 원고의 집행채권 및 피압류채권의 발생 사실',
-      '&nbsp;&nbsp;② 채권압류 및 전부명령 발령 사실',
-      '&nbsp;&nbsp;③ 압류 및 전부명령의 제3채무자(피고) 송달 사실',
-      '&nbsp;&nbsp;④ 전부명령의 확정 사실',
-    ],
-    isVerified: false,
-  },
-  {
-    id: 'claim-collection-order',
-    type: 'claim',
-    category: '요건',
-    triggers: ['추심금', '추심명령', 'ㅊㅅㄱ'],
-    title: '추심금 청구',
-    reference: '민사집행법 제229조',
-    description: '집행채권 및 피압류채권 발생, 압류추심명령 발령, 제3채무자 송달',
-    isInline: false,
-    snippetTitle: '1. 추심금 청구',
-    items: [
-      '가. 청구권의 발생 (요건사실)',
-      '&nbsp;&nbsp;① 원고의 집행채권 및 피압류채권의 발생 사실',
-      '&nbsp;&nbsp;② 채권압류 및 추심명령 발령 사실',
-      '&nbsp;&nbsp;③ 압류 및 추심명령의 제3채무자(피고) 송달 사실',
-    ],
-    isVerified: false,
-  },
-
-  // ==========================================
-  // 5. 핵심 항변 (Defenses)
-  // ==========================================
+  // 4. 핵심 항변
   {
     id: 'defense-extinctive-prescription',
     type: 'defense',
@@ -533,7 +319,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;② 권리 행사 가능 시점(기산점)으로부터 법정 시효기간 경과 사실',
       '&nbsp;&nbsp;③ 시효완성의 효과를 원용한다는 의사표시 사실',
     ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'defense-simultaneous-performance',
@@ -551,24 +337,7 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;② 원고의 반대채무가 변제기에 도달한 사실',
       '&nbsp;&nbsp;③ 원고가 자기 채무의 이행 또는 이행제공 없이 청구한 사실',
     ],
-    isVerified: false,
-  },
-  {
-    id: 'defense-payment',
-    type: 'defense',
-    category: '항변',
-    triggers: ['변제', '채무소멸', 'ㅂㅈ'],
-    title: '변제 항변',
-    reference: '민법 제460조',
-    description: '채권 내용에 따른 급부 제공 및 당해 채무 변제 목적 사실',
-    isInline: false,
-    snippetTitle: '2. 피고의 항변에 관한 판단',
-    items: [
-      '가. 변제 항변 (요건사실)',
-      '&nbsp;&nbsp;① 채권의 내용에 따른 급부가 행하여진 사실',
-      '&nbsp;&nbsp;② 해당 급부가 당해 채무의 변제를 위하여 행하여진 사실',
-    ],
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'defense-setoff',
@@ -586,17 +355,15 @@ export const LEGAL_DATA: LegalSnippet[] = [
       '&nbsp;&nbsp;② 자동채권과 수동채권이 상계적상에 도달한 사실 (변제기 도래 등)',
       '&nbsp;&nbsp;③ 상계의 의사표시 및 상대방 도달 사실',
     ],
-    isVerified: false,
+    isVerified: true,
   },
 
-  // ==========================================
-  // 6. 핵심 조문 (Statutes)
-  // ==========================================
+  // 5. 핵심 조문
   {
     id: 'statute-civ-406',
     type: 'statute',
     category: '조문',
-    triggers: ['민법406조', '채권자취소권', '사해행위', 'ㅊㄱㅈㅊㅅ'],
+    triggers: ['민법406조', '채권자취소권', '사해행위조문', 'ㅊㄱㅈㅊㅅ'],
     title: '민법 제406조 (채권자취소권)',
     reference: '민법 제406조 제1항',
     description: '채권자를 해함을 알고 행한 법률행위의 취소 및 원상회복',
@@ -605,6 +372,6 @@ export const LEGAL_DATA: LegalSnippet[] = [
     items: [
       '① 채무자가 채권자를 해함을 알고 재산권을 목적으로 한 법률행위를 한 때에는 채권자는 그 취소 및 원상회복을 법원에 청구할 수 있다. 그러나 그 행위로 인하여 이익을 받은 자나 전득한 자가 그 행위 또는 전득당시에 채권자를 해함을 알지 못한 때에는 그러하지 아니하다.',
     ],
-    isVerified: false,
+    isVerified: true,
   },
 ];

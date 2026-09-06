@@ -25,26 +25,53 @@ import {
   HelpCircle,
   X,
   FilePlus2,
-  AlertCircle,
+  FileText,
+  Crosshair,
 } from 'lucide-react';
+import type { LawditDocument } from '../hooks/useDocumentStore';
 
 export interface WorkspaceTheme {
   id: string;
   name: string;
-  bgColor: string;
+  canvasBg: string;
+  gridLine: string;
+  docBg: string;
   accentDot: string;
 }
 
-export interface HeaderTimerPreset {
-  label: string;
-  val: number;
-}
-
 export const THEMES: WorkspaceTheme[] = [
-  { id: 'slate', name: '슬레이트 쿨', bgColor: '#0f172a', accentDot: '#38bdf8' },
-  { id: 'neutral', name: '모던 그레이', bgColor: '#f1f5f9', accentDot: '#64748b' },
-  { id: 'oat', name: '웜 오트밀', bgColor: '#f7f5f0', accentDot: '#c2a67e' },
-  { id: 'deepnavy', name: '다크 인디고', bgColor: '#111827', accentDot: '#818cf8' },
+  {
+    id: 'cool-slate',
+    name: '슬레이트 그리드',
+    canvasBg: '#f1f5f9',
+    gridLine: 'rgba(148, 163, 184, 0.35)',
+    docBg: 'rgba(255, 255, 255, 0.88)',
+    accentDot: '#38bdf8',
+  },
+  {
+    id: 'architect-blue',
+    name: '아키텍트 모눈',
+    canvasBg: '#e2e8f0',
+    gridLine: 'rgba(59, 130, 246, 0.25)',
+    docBg: 'rgba(255, 255, 255, 0.90)',
+    accentDot: '#2563eb',
+  },
+  {
+    id: 'warm-ivory',
+    name: '아이보리 레포트',
+    canvasBg: '#f6f4ef',
+    gridLine: 'rgba(215, 204, 185, 0.55)',
+    docBg: 'rgba(255, 255, 255, 0.86)',
+    accentDot: '#c2a67e',
+  },
+  {
+    id: 'midnight',
+    name: '다크 옵시디언',
+    canvasBg: '#0b0f19',
+    gridLine: 'rgba(51, 65, 85, 0.5)',
+    docBg: 'rgba(23, 32, 51, 0.88)',
+    accentDot: '#818cf8',
+  },
 ];
 
 interface HeaderProps {
@@ -54,18 +81,25 @@ interface HeaderProps {
   isThemePickerOpen: boolean;
   setIsThemePickerOpen: (open: boolean) => void;
   onThemeChange: (theme: WorkspaceTheme) => void;
+  orientation: 'portrait' | 'landscape';
+  onOrientationChange: (mode: 'portrait' | 'landscape') => void;
+  documents: LawditDocument[];
+  activeDocId: string;
+  onSelectDoc: (id: string) => void;
+  onNewDoc: () => void;
+  onResetView: () => void;
+  onExportPdf: () => void;
   timeLeft: number;
   isTimerRunning: boolean;
   isTimerPickerOpen: boolean;
   setIsTimerPickerOpen: (open: boolean) => void;
   formattedTime: string;
   selectedDuration: number;
-  presets: HeaderTimerPreset[];
+  presets: { label: string; val: number }[];
   onTimerToggle: () => void;
   onTimerReset: (val?: number) => void;
   onCopy: () => void;
   copyFeedback: boolean;
-  onNewDoc: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -75,6 +109,14 @@ export const Header: React.FC<HeaderProps> = ({
   isThemePickerOpen,
   setIsThemePickerOpen,
   onThemeChange,
+  orientation,
+  onOrientationChange,
+  documents,
+  activeDocId,
+  onSelectDoc,
+  onNewDoc,
+  onResetView,
+  onExportPdf,
   timeLeft,
   isTimerRunning,
   isTimerPickerOpen,
@@ -86,22 +128,20 @@ export const Header: React.FC<HeaderProps> = ({
   onTimerReset,
   onCopy,
   copyFeedback,
-  onNewDoc,
 }) => {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
-  const [isNewDocConfirmOpen, setIsNewDocConfirmOpen] = useState(false);
 
   if (!editor) return null;
 
-  const toolBtnStyle = (isActive: boolean = false, isDisabled: boolean = false) => ({
+  const toolBtnStyle = (isActive = false, isDisabled = false) => ({
     display: 'inline-flex' as const,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
     width: '28px',
     height: '28px',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '5px',
     backgroundColor: isActive ? '#e2e8f0' : 'transparent',
     color: isActive ? '#0f172a' : '#64748b',
     cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -121,106 +161,127 @@ export const Header: React.FC<HeaderProps> = ({
     setIsExportMenuOpen(false);
   };
 
-  const handlePrint = () => {
-    window.print();
-    setIsExportMenuOpen(false);
-  };
-
-  const confirmNewDoc = () => {
-    onNewDoc();
-    setIsNewDocConfirmOpen(false);
-  };
-
   return (
     <>
       <header
         style={{
           position: 'sticky',
           top: 0,
-          zIndex: 50,
-          backgroundColor: 'rgba(255, 255, 255, 0.88)',
-          backdropFilter: 'saturate(180%) blur(20px)',
-          WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-          borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
-          padding: '6px 24px',
+          zIndex: 60,
+          backgroundColor: 'rgba(255, 255, 255, 0.92)',
+          backdropFilter: 'saturate(180%) blur(16px)',
+          WebkitBackdropFilter: 'saturate(180%) blur(16px)',
+          borderBottom: '1px solid rgba(226, 232, 240, 0.9)',
+          padding: '6px 18px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+          gap: '12px',
         }}
       >
-        {/* 좌측: 로고 및 새 서면 작성 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* 좌측: 로고, 새 서면, 탭 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
             <div
               style={{
-                width: '26px',
-                height: '26px',
-                borderRadius: '6px',
+                width: '24px',
+                height: '24px',
+                borderRadius: '5px',
                 background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#ffffff',
-                boxShadow: '0 2px 5px rgba(15, 23, 42, 0.15)',
               }}
             >
-              <Scale size={14} />
+              <Scale size={13} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-              <span style={{ fontSize: '15px', fontWeight: '800', letterSpacing: '-0.04em', color: '#0f172a' }}>
-                Lawdit
-              </span>
-              <span style={{ fontSize: '9px', fontWeight: '700', color: '#2563eb', letterSpacing: '0.05em' }}>
-                PRO
-              </span>
-            </div>
+            <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.03em' }}>
+              Lawdit
+            </span>
           </div>
-
-          <div style={{ width: '1px', height: '14px', backgroundColor: '#e2e8f0' }} />
 
           <button
             type="button"
-            onClick={() => setIsNewDocConfirmOpen(true)}
-            title="새 서면 작성 (내용 초기화)"
+            onClick={onNewDoc}
+            title="새 서면 생성"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '4px',
               padding: '4px 8px',
               borderRadius: '5px',
-              border: '1px solid #e2e8f0',
+              border: '1px solid #cbd5e1',
               backgroundColor: '#ffffff',
-              color: '#475569',
+              color: '#1e293b',
               fontSize: '11px',
-              fontWeight: '600',
+              fontWeight: '700',
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
+              flexShrink: 0,
             }}
           >
-            <FilePlus2 size={13} color="#2563eb" />
+            <FilePlus2 size={12} color="#2563eb" />
             새 서면
           </button>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              overflowX: 'auto',
+              maxWidth: '300px',
+              padding: '2px 0',
+            }}
+          >
+            {documents.map((doc, idx) => {
+              const isSelected = doc.id === activeDocId;
+              return (
+                <button
+                  key={doc.id}
+                  type="button"
+                  onClick={() => onSelectDoc(doc.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    border: isSelected ? '1px solid #2563eb' : '1px solid transparent',
+                    backgroundColor: isSelected ? '#eff6ff' : 'rgba(241, 245, 249, 0.8)',
+                    color: isSelected ? '#1d4ed8' : '#64748b',
+                    fontSize: '11px',
+                    fontWeight: isSelected ? '700' : '500',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                  }}
+                >
+                  <FileText size={10} color={isSelected ? '#2563eb' : '#94a3b8'} />
+                  {idx + 1}. {doc.title}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* 중앙: 캡슐형 툴바 */}
+        {/* 중앙: 서식 툴바 */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: 'rgba(248, 250, 252, 0.85)',
-            border: '1px solid rgba(226, 232, 240, 0.9)',
-            borderRadius: '7px',
-            padding: '2px 3px',
+            backgroundColor: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '6px',
+            padding: '2px',
             gap: '1px',
           }}
         >
-          <button type="button" title="굵게 (Cmd+B)" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleBold().run()} style={toolBtnStyle(editor.isActive('bold'))}><Bold size={13} /></button>
-          <button type="button" title="기울임 (Cmd+I)" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleItalic().run()} style={toolBtnStyle(editor.isActive('italic'))}><Italic size={13} /></button>
-          <button type="button" title="밑줄 (Cmd+U)" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleUnderline().run()} style={toolBtnStyle(editor.isActive('underline'))}><UnderlineIcon size={13} /></button>
+          <button type="button" title="굵게" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleBold().run()} style={toolBtnStyle(editor.isActive('bold'))}><Bold size={13} /></button>
+          <button type="button" title="기울임" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleItalic().run()} style={toolBtnStyle(editor.isActive('italic'))}><Italic size={13} /></button>
+          <button type="button" title="밑줄" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleUnderline().run()} style={toolBtnStyle(editor.isActive('underline'))}><UnderlineIcon size={13} /></button>
           <button type="button" title="취소선" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleStrike().run()} style={toolBtnStyle(editor.isActive('strike'))}><Strikethrough size={13} /></button>
           <button type="button" title="형광펜" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} style={toolBtnStyle(editor.isActive('highlight'))}><Highlighter size={13} /></button>
-
           <button
             type="button"
             title="증거 번호 (빨강)"
@@ -235,22 +296,82 @@ export const Header: React.FC<HeaderProps> = ({
             style={{ ...toolBtnStyle(editor.isActive('textStyle', { color: '#dc2626' })), color: '#dc2626', fontWeight: '800', fontSize: '12px' }}
           >A</button>
 
-          <div style={{ width: '1px', height: '14px', backgroundColor: '#e2e8f0', margin: '0 3px' }} />
+          <div style={{ width: '1px', height: '14px', backgroundColor: '#e2e8f0', margin: '0 2px' }} />
 
-          <button type="button" title="조문 제목" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} style={toolBtnStyle(editor.isActive('heading', { level: 2 }))}><Heading2 size={14} /></button>
+          <button type="button" title="표제 (H2)" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} style={toolBtnStyle(editor.isActive('heading', { level: 2 }))}><Heading2 size={13} /></button>
           <button type="button" title="판례 인용구" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleBlockquote().run()} style={toolBtnStyle(editor.isActive('blockquote'))}><Quote size={13} /></button>
-          <button type="button" title="들여쓰기 (Tab)" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().insertContent('\u00a0\u00a0').run()} style={toolBtnStyle(false)}><Indent size={13} /></button>
-          <button type="button" title="사진 첨부" onMouseDown={(e) => e.preventDefault()} onClick={onImageClick} style={toolBtnStyle(false)}><ImageIcon size={13} /></button>
+          <button type="button" title="들여쓰기" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().insertContent('\u00a0\u00a0').run()} style={toolBtnStyle(false)}><Indent size={13} /></button>
+          <button type="button" title="사진 삽입" onMouseDown={(e) => e.preventDefault()} onClick={onImageClick} style={toolBtnStyle(false)}><ImageIcon size={13} /></button>
 
-          <div style={{ width: '1px', height: '14px', backgroundColor: '#e2e8f0', margin: '0 3px' }} />
+          <div style={{ width: '1px', height: '14px', backgroundColor: '#e2e8f0', margin: '0 2px' }} />
 
           <button type="button" title="실행 취소" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} style={toolBtnStyle(false, !editor.can().undo())}><Undo2 size={13} /></button>
           <button type="button" title="다시 실행" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} style={toolBtnStyle(false, !editor.can().redo())}><Redo2 size={13} /></button>
         </div>
 
-        {/* 우측: 도구, 타이머, 내보내기, 전체 복사 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', position: 'relative' }}>
-          {/* 가이드 */}
+        {/* 우측: 토글, 정렬, 테마, 타이머, PDF 생성, 전체 복사 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* 가로모드 / 세로모드 토글 */}
+          <div
+            style={{
+              display: 'inline-flex',
+              backgroundColor: '#f1f5f9',
+              padding: '2px',
+              borderRadius: '6px',
+              border: '1px solid #e2e8f0',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => onOrientationChange('landscape')}
+              style={{
+                padding: '3px 8px',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '11px',
+                fontWeight: orientation === 'landscape' ? '700' : '500',
+                backgroundColor: orientation === 'landscape' ? '#ffffff' : 'transparent',
+                color: orientation === 'landscape' ? '#0f172a' : '#64748b',
+                boxShadow: orientation === 'landscape' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.12s ease',
+              }}
+            >
+              가로모드
+            </button>
+            <button
+              type="button"
+              onClick={() => onOrientationChange('portrait')}
+              style={{
+                padding: '3px 8px',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '11px',
+                fontWeight: orientation === 'portrait' ? '700' : '500',
+                backgroundColor: orientation === 'portrait' ? '#ffffff' : 'transparent',
+                color: orientation === 'portrait' ? '#0f172a' : '#64748b',
+                boxShadow: orientation === 'portrait' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.12s ease',
+              }}
+            >
+              세로모드
+            </button>
+          </div>
+
+          <button
+            type="button"
+            title="캔버스 중앙 정렬"
+            onClick={onResetView}
+            style={{
+              ...toolBtnStyle(false),
+              border: '1px solid #e2e8f0',
+              backgroundColor: '#ffffff',
+            }}
+          >
+            <Crosshair size={13} />
+          </button>
+
           <button
             type="button"
             title="단축키 가이드"
@@ -261,80 +382,87 @@ export const Header: React.FC<HeaderProps> = ({
               backgroundColor: '#ffffff',
             }}
           >
-            <HelpCircle size={14} />
+            <HelpCircle size={13} />
           </button>
 
-          {/* 테마 피커 */}
-          <button
-            type="button"
-            title="캔버스 배경 테마"
-            onClick={() => setIsThemePickerOpen(!isThemePickerOpen)}
-            style={{
-              ...toolBtnStyle(isThemePickerOpen),
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              gap: '4px',
-              padding: '0 7px',
-              width: 'auto',
-            }}
-          >
-            <Palette size={13} />
-            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: currentTheme.accentDot }} />
-          </button>
+          {/* 모눈 테마 선택기 */}
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              title="캔버스 배경 격자 테마"
+              onClick={() => setIsThemePickerOpen(!isThemePickerOpen)}
+              style={{
+                ...toolBtnStyle(isThemePickerOpen),
+                border: '1px solid #e2e8f0',
+                backgroundColor: '#ffffff',
+                width: 'auto',
+                padding: '0 6px',
+                gap: '4px',
+              }}
+            >
+              <Palette size={12} />
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: currentTheme.accentDot }} />
+            </button>
 
-          {isThemePickerOpen && (
-            <div style={{
-              position: 'absolute',
-              top: '36px',
-              right: '240px',
-              backgroundColor: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: '8px',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.08)',
-              padding: '4px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '2px',
-              zIndex: 110,
-              minWidth: '130px',
-            }}>
-              {THEMES.map((th) => (
-                <button
-                  key={th.id}
-                  type="button"
-                  onClick={() => onThemeChange(th)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '6px 10px',
-                    border: 'none',
-                    borderRadius: '5px',
-                    backgroundColor: currentTheme.id === th.id ? '#f1f5f9' : 'transparent',
-                    cursor: 'pointer',
-                    fontSize: '11px',
-                    fontWeight: currentTheme.id === th.id ? '600' : '400',
-                    color: '#1e293b',
-                    textAlign: 'left',
-                  }}
-                >
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: th.accentDot }} />
-                  {th.name}
-                </button>
-              ))}
-            </div>
-          )}
+            {isThemePickerOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '34px',
+                  right: 0,
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '7px',
+                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                  padding: '4px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                  zIndex: 120,
+                  minWidth: '130px',
+                }}
+              >
+                {THEMES.map((th) => (
+                  <button
+                    key={th.id}
+                    type="button"
+                    onClick={() => onThemeChange(th)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '6px 8px',
+                      border: 'none',
+                      borderRadius: '4px',
+                      backgroundColor: currentTheme.id === th.id ? '#f1f5f9' : 'transparent',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      fontWeight: currentTheme.id === th.id ? '700' : '400',
+                      color: '#1e293b',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: th.accentDot }} />
+                    {th.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* 타이머 */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            border: '1px solid #e2e8f0',
-            borderRadius: '6px',
-            backgroundColor: timeLeft < 300 && isTimerRunning ? '#fef2f2' : '#ffffff',
-            padding: '1px 3px',
-            gap: '1px',
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              border: '1px solid #e2e8f0',
+              borderRadius: '5px',
+              backgroundColor: timeLeft < 300 && isTimerRunning ? '#fef2f2' : '#ffffff',
+              padding: '1px 3px',
+              gap: '2px',
+              position: 'relative',
+            }}
+          >
             <button
               type="button"
               onClick={() => setIsTimerPickerOpen(!isTimerPickerOpen)}
@@ -342,135 +470,144 @@ export const Header: React.FC<HeaderProps> = ({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
+                gap: '3px',
                 border: 'none',
                 background: 'transparent',
                 cursor: 'pointer',
-                padding: '2px 5px',
-                fontSize: '12px',
+                padding: '2px 4px',
+                fontSize: '11px',
                 fontWeight: '700',
                 color: timeLeft < 300 && isTimerRunning ? '#dc2626' : '#1e293b',
-                fontVariantNumeric: 'tabular-nums',
               }}
             >
-              <Timer size={12} />
+              <Timer size={11} />
               {formattedTime}
             </button>
-
             <button
               type="button"
               onClick={onTimerToggle}
-              title={isTimerRunning ? '일시정지' : '시작'}
-              style={{
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                padding: '3px',
-                display: 'flex',
-                alignItems: 'center',
-                color: isTimerRunning ? '#dc2626' : '#2563eb',
-              }}
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px', color: isTimerRunning ? '#dc2626' : '#2563eb' }}
             >
-              {isTimerRunning ? <Pause size={11} /> : <Play size={11} />}
+              {isTimerRunning ? <Pause size={10} /> : <Play size={10} />}
             </button>
-
             <button
               type="button"
               onClick={() => onTimerReset()}
-              title="리셋"
-              style={{
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                padding: '3px',
-                display: 'flex',
-                alignItems: 'center',
-                color: '#94a3b8',
-              }}
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px', color: '#94a3b8' }}
             >
-              <RotateCcw size={11} />
+              <RotateCcw size={10} />
             </button>
+
+            {isTimerPickerOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '32px',
+                  right: 0,
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '7px',
+                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                  padding: '4px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                  zIndex: 120,
+                  minWidth: '120px',
+                }}
+              >
+                {presets.map((p) => (
+                  <button
+                    key={p.val}
+                    type="button"
+                    onClick={() => {
+                      onTimerReset(p.val);
+                      setIsTimerPickerOpen(false);
+                    }}
+                    style={{
+                      padding: '5px 8px',
+                      border: 'none',
+                      borderRadius: '4px',
+                      backgroundColor: selectedDuration === p.val ? '#f1f5f9' : 'transparent',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      fontWeight: selectedDuration === p.val ? '700' : '400',
+                      color: '#1e293b',
+                      textAlign: 'left',
+                    }}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {isTimerPickerOpen && (
-            <div style={{
-              position: 'absolute',
-              top: '36px',
-              right: '140px',
+          {/* 요구사항 4: 단일 작업 서면 전용 PDF 생성 및 다운로드 버튼 */}
+          <button
+            type="button"
+            title="현재 작업 중인 서면 PDF 생성 및 다운로드"
+            onClick={onExportPdf}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              height: '28px',
+              padding: '0 9px',
               backgroundColor: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: '8px',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.08)',
-              padding: '4px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '2px',
-              zIndex: 110,
-              minWidth: '130px',
-            }}>
-              {presets.map((p) => (
-                <button
-                  key={p.val}
-                  type="button"
-                  onClick={() => onTimerReset(p.val)}
-                  style={{
-                    padding: '6px 10px',
-                    border: 'none',
-                    borderRadius: '5px',
-                    backgroundColor: selectedDuration === p.val ? '#f1f5f9' : 'transparent',
-                    cursor: 'pointer',
-                    fontSize: '11px',
-                    fontWeight: selectedDuration === p.val ? '600' : '400',
-                    color: '#1e293b',
-                    textAlign: 'left',
-                  }}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          )}
+              color: '#2563eb',
+              fontSize: '11px',
+              fontWeight: '700',
+              borderRadius: '5px',
+              border: '1px solid #bfdbfe',
+              cursor: 'pointer',
+              transition: 'all 0.12s ease',
+            }}
+          >
+            <Printer size={12} color="#2563eb" />
+            PDF 생성
+          </button>
 
-          {/* 내보내기 */}
+          {/* 텍스트 내보내기 보조 메뉴 */}
           <div style={{ position: 'relative' }}>
             <button
               type="button"
-              title="파일 내보내기"
+              title="텍스트 파일로 저장"
               onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
               style={{
                 ...toolBtnStyle(isExportMenuOpen),
-                backgroundColor: '#ffffff',
                 border: '1px solid #e2e8f0',
-                width: '30px',
-                height: '30px',
+                backgroundColor: '#ffffff',
               }}
             >
               <Download size={13} />
             </button>
 
             {isExportMenuOpen && (
-              <div style={{
-                position: 'absolute',
-                top: '36px',
-                right: 0,
-                backgroundColor: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: '8px',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                padding: '4px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px',
-                zIndex: 110,
-                minWidth: '150px',
-              }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '34px',
+                  right: 0,
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '7px',
+                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                  padding: '4px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                  zIndex: 120,
+                  minWidth: '130px',
+                }}
+              >
                 <button
                   type="button"
                   onClick={handleDownloadTxt}
                   style={{
-                    padding: '7px 10px',
+                    padding: '6px 8px',
                     border: 'none',
-                    borderRadius: '5px',
+                    borderRadius: '4px',
                     backgroundColor: 'transparent',
                     cursor: 'pointer',
                     fontSize: '11px',
@@ -478,148 +615,42 @@ export const Header: React.FC<HeaderProps> = ({
                     color: '#1e293b',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    textAlign: 'left',
+                    gap: '6px',
                   }}
                 >
-                  <Download size={12} color="#2563eb" />
+                  <Download size={11} color="#2563eb" />
                   텍스트 저장 (.txt)
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  style={{
-                    padding: '7px 10px',
-                    border: 'none',
-                    borderRadius: '5px',
-                    backgroundColor: 'transparent',
-                    cursor: 'pointer',
-                    fontSize: '11px',
-                    fontWeight: '500',
-                    color: '#1e293b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    textAlign: 'left',
-                  }}
-                >
-                  <Printer size={12} color="#059669" />
-                  인쇄 / PDF 저장
                 </button>
               </div>
             )}
           </div>
 
-          {/* 전체 복사 */}
+          {/* 전체 복사 버튼 */}
           <button
             type="button"
-            title="문서 전체 복사 (HWP 바탕글 서식 상속)"
+            title="HWP 바탕글 서식 무손실 복사"
             onClick={onCopy}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              height: '30px',
-              padding: '0 11px',
+              gap: '4px',
+              height: '28px',
+              padding: '0 10px',
               backgroundColor: copyFeedback ? '#15803d' : '#0f172a',
               color: '#ffffff',
               fontSize: '11px',
-              fontWeight: '600',
-              borderRadius: '6px',
+              fontWeight: '700',
+              borderRadius: '5px',
               border: 'none',
               cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(15, 23, 42, 0.15)',
-              transition: 'all 0.15s ease',
+              transition: 'background-color 0.15s ease',
             }}
           >
-            {copyFeedback ? <Check size={12} /> : <Copy size={12} />}
-            {copyFeedback ? '복사 완료' : '전체 복사'}
+            {copyFeedback ? <Check size={11} /> : <Copy size={11} />}
+            {copyFeedback ? '완료' : '복사'}
           </button>
         </div>
       </header>
-
-      {/* 새 문서 확인 모달 */}
-      {isNewDocConfirmOpen && (
-        <div
-          onClick={() => setIsNewDocConfirmOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.45)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 300,
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '10px',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
-              width: '380px',
-              padding: '20px',
-              border: '1px solid #e2e8f0',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                backgroundColor: '#fee2e2',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#dc2626',
-              }}>
-                <AlertCircle size={18} />
-              </div>
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a' }}>새 서면을 작성하시겠습니까?</div>
-                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>작성 중이던 본문 내용이 완전히 초기화됩니다.</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '16px' }}>
-              <button
-                type="button"
-                onClick={() => setIsNewDocConfirmOpen(false)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
-                  backgroundColor: '#ffffff',
-                  color: '#475569',
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                onClick={confirmNewDoc}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  backgroundColor: '#dc2626',
-                  color: '#ffffff',
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
-                비우고 새로 작성
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 가이드 모달 */}
       {isHelpOpen && (
@@ -640,54 +671,43 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#ffffff',
-              borderRadius: '12px',
+              borderRadius: '10px',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              width: '460px',
-              padding: '24px',
+              width: '440px',
+              padding: '20px',
               border: '1px solid #e2e8f0',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Scale size={18} color="#2563eb" />
-                <span style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>Lawdit 실무 가이드</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Scale size={16} color="#2563eb" />
+                <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>Lawdit 실무 가이드</span>
               </div>
               <button
                 type="button"
                 onClick={() => setIsHelpOpen(false)}
                 style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#94a3b8' }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '12px', color: '#334155' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '11px', color: '#334155' }}>
               <div>
-                <strong style={{ color: '#0f172a', display: 'block', marginBottom: '6px' }}>📌 계층형 목차 단축키 (Mac)</strong>
-                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '4px', color: '#475569' }}>
-                  <span><code>⌥ ⇧ 1</code></span><span>대목차 ( Ⅰ. )</span>
-                  <span><code>⌥ ⇧ 2</code></span><span>중목차 ( 1. ) + 2칸 들여쓰기</span>
-                  <span><code>⌥ ⇧ 3</code></span><span>소목차 ( 가. ) + 4칸 들여쓰기</span>
-                  <span><code>⌥ ⇧ 4</code></span><span>항 ( (1) ) + 6칸 들여쓰기</span>
-                  <span><code>⌥ ⇧ 5</code></span><span>호 ( ① ) + 8칸 들여쓰기</span>
+                <strong style={{ color: '#0f172a', display: 'block', marginBottom: '4px' }}>📌 계층형 들여쓰기 조작</strong>
+                <div style={{ color: '#475569', lineHeight: '1.5' }}>
+                  • <code>Tab</code>: 현재 들여쓰기 깊이에서 직계 하위 기호로 변경되며 +2칸 들여쓰기<br />
+                  • <code>Shift + Tab</code>: 상위 기호로 복귀하며 2칸 내어쓰기<br />
+                  • <code>Enter</code>: 같은 번호/문자 체계 자동 증분 (내용 없는 빈 기호에서 Enter 시 탈출)
                 </div>
               </div>
 
               <div>
-                <strong style={{ color: '#0f172a', display: 'block', marginBottom: '6px' }}>📌 원문자 및 인용 단축키</strong>
-                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '4px', color: '#475569' }}>
-                  <span><code>⌥ 1 ~ 0</code></span><span>원문자 ( ① ~ ⑩ ) 즉시 주입</span>
-                  <span><code>((1)) + 스페이스</code></span><span>원문자 자동 치환</span>
-                  <span><code>⌥ ⌘ 2</code></span><span>청구원인 표제 (H2)</span>
-                  <span><code>⌥ ⌘ Q</code></span><span>판례 인용 블록</span>
+                <strong style={{ color: '#0f172a', display: 'block', marginBottom: '4px' }}>📌 캔버스 내비게이션 & PDF</strong>
+                <div style={{ color: '#475569', lineHeight: '1.5' }}>
+                  • 배경 드래그 / Space+드래그: 360도 무한 팬 이동<br />
+                  • <code>PDF 생성</code>: 현재 작업 중인 단일 서면(다중 페이지)만 A4 규격으로 즉시 출력/저장
                 </div>
-              </div>
-
-              <div>
-                <strong style={{ color: '#0f172a', display: 'block', marginBottom: '6px' }}>📌 슬래시(/) 자동 서식 및 요건사실</strong>
-                <p style={{ margin: 0, color: '#64748b', lineHeight: '1.5' }}>
-                  빈 줄에서 <code>/</code>를 입력하면 소장, 답변서, 준비서면 템플릿(<code>/ㅅㅈ</code>, <code>/ㄷㅂㅅ</code>) 및 21대 민사 요건사실(<code>/ㅅㅇㄷ</code>, <code>/ㄷㅇㄱ</code>, <code>/ㅅㅎㅎㅇ</code>)을 즉각 불러옵니다.
-                </p>
               </div>
             </div>
           </div>
