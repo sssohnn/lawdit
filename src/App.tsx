@@ -81,9 +81,12 @@ export default function App() {
       document.head.appendChild(styleEl);
     }
     const isLandscape = orientation === 'landscape';
+    // Safari는 @page size의 landscape/portrait "키워드" 값을 인쇄창 UI(용지 방향 토글)에
+    // 안정적으로 반영하지 않는 경우가 많다. A4 물리 치수를 가로/세로로 직접 바꿔 넣어야
+    // 인쇄 대화상자가 열릴 때부터 올바른 방향으로 뜬다.
     styleEl.textContent = `
       @page {
-        size: ${isLandscape ? 'landscape' : 'portrait'};
+        size: ${isLandscape ? '297mm 210mm' : '210mm 297mm'};
         margin: 15mm;
       }
     `;
@@ -389,7 +392,7 @@ export default function App() {
     }
     styleEl.textContent = `
       @page {
-        size: ${isLandscape ? 'landscape' : 'portrait'};
+        size: ${isLandscape ? '297mm 210mm' : '210mm 297mm'};
         margin: 15mm;
       }
     `;
@@ -442,6 +445,12 @@ export default function App() {
           margin-right: 0 !important;
           line-height: 1.62 !important;
           word-break: break-all !important;
+          /* 행 걸이 들여쓰기(hanging indent): margin-left는 "기호(마커)"의 시작 위치만 고정하고,
+             여기서 padding-left + 음수 text-indent로 "내용"의 시작 위치를 별도로 고정한다.
+             이게 없으면 줄바꿈된 둘째 줄부터는 margin-left(=기호 위치)까지만 밀려나서,
+             레벨이 0인 문단은 사실상 여백 0(페이지 맨 왼쪽)으로 튕겨 나가 보이게 된다. */
+          padding-left: 1.5em !important;
+          text-indent: -1.5em !important;
         }
 
         .ProseMirror p[data-indent="0"], .ProseMirror p.legal-indent-0 { margin-left: 0px !important; }
@@ -481,6 +490,30 @@ export default function App() {
             visibility: visible;
           }
 
+          /* 캔버스/팬 레이어의 transform·overflow·position을 인쇄 시에는 완전히 제거한다.
+             .lawdit-pan-plane에 걸린 transform이 살아있으면 이 요소가 하위의
+             position:absolute 요소(#lawdit-active-document)의 containing block이 되어버리고,
+             그 자신은 width가 지정되지 않아 콘텐츠 크기에 맞춰 축소(shrink-to-fit)된다.
+             그 결과 #lawdit-active-document의 width:100%가 "부모의 100%"가 아니라
+             사실상 auto로 풀리면서 글자 단위로 줄바꿈되는 세로 압축 현상이 발생한다.
+             main의 overflow:hidden 역시 여러 페이지 분량의 콘텐츠를 잘라내므로 같이 해제한다. */
+          .lawdit-app-root {
+            height: auto !important;
+            overflow: visible !important;
+            display: block !important;
+          }
+
+          .freeform-pan-target {
+            position: static !important;
+            overflow: visible !important;
+            height: auto !important;
+          }
+
+          .lawdit-pan-plane {
+            position: static !important;
+            transform: none !important;
+          }
+
           #lawdit-active-document {
             position: absolute !important;
             left: 0 !important;
@@ -514,6 +547,8 @@ export default function App() {
             page-break-inside: avoid;
             margin-top: 1.5pt !important;
             margin-bottom: 1.5pt !important;
+            padding-left: 1.5em !important;
+            text-indent: -1.5em !important;
           }
 
           /* 인쇄 환경에서의 pt 단위 환산 */
